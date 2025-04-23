@@ -1,0 +1,15 @@
+<h3>ใบเสร็จรับเงิน</h3>
+<table class="w3-table w3-bordered">
+  <tr>
+    <th>สินค้า</th><th>จำนวน</th><th>ราคาต่อหน่วย</th><th>รวม</th>
+  </tr>
+  <% bill.forEach(i => { %>
+    <tr>
+      <td><%= i.ProductID %></td>
+      <td><%= i.qty %></td>
+      <td><%= i.price %></td>
+      <td><%= i.total %></td>
+    </tr>
+  <% }) %>
+</table>
+<p class="w3-right w3-xlarge"><strong>รวมทั้งหมด: <%= grandTotal %> บาท</strong></p>

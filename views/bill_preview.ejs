@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>พรีวิวบิล</title>
+  <style>
+    body { font-family: "Kanit", sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h2>ตัวอย่างบิล</h2>
+  <table>
+    <thead>
+      <tr><th>สินค้า</th><th>จำนวน</th><th>ราคา</th></tr>
+    </thead>
+    <tbody>
+      <% items.forEach(item => { %>
+        <tr>
+          <td><%= item.name %></td>
+          <td><%= item.qty %></td>
+          <td><%= item.price %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <h3>รวม: <%= total %> บาท</h3>
+  <button onclick="window.print()">พิมพ์บิล</button>
+</body>
+</html>

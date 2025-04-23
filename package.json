@@ -1,0 +1,26 @@
+{
+  "name": "shop-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "mariadb": "^3.4.1",
+    "mysql2": "^3.14.0",
+    "node-thermal-printer": "^4.4.5",
+    "pdfmake": "^0.2.18"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

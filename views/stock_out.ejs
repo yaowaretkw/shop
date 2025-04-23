@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าขายสินค้า</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .left-section,
+        .right-section {
+            width: 48%;
+        }
+
+        .clickable-row {
+            cursor: pointer;
+        }
+
+        .receipt {
+            display: none;
+        }
+
+        @media print {
+            .container {
+                display: block;
+            }
+
+            #receipt {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+                border: 1px solid #000;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>หน้าขายสินค้า</h2>
+    <label for="categoryFilter">หมวดหมู่สินค้า:</label>
+    <select id="categoryFilter">
+        <option value="">ทั้งหมด</option>
+        <% categories.forEach(c=> { %>
+            <option value="<%= c.CategoryName %>">
+                <%= c.CategoryName %>
+            </option>
+            <% }) %>
+    </select>
+
+    <div class="container">
+        
+        <!-- ซ้าย: รายการสินค้าทั้งหมด -->
+        <div class="left-section" id="left">
+            <h3>รายการสินค้า</h3>
+            <table class="table table-bordered" id="productTable">
+                <thead>
+                    <tr>
+                        <th>สินค้า</th>
+                        <th>หมวดหมู่</th>
+                        <th>ราคา</th>
+                    </tr>
+                </thead>
+                <tbody id="productList">
+                    <% products.forEach(p=> { %>
+                        <tr class="clickable-row" data-product-id="<%= p.ProductID %>"
+                            data-product-name="<%= p.ProductName %>" data-price="<%= p.Price %>">
+                            <td>
+                                <%= p.ProductName %>
+                            </td>
+                            <td><%= p.CategoryName %></td> 
+                            <td>
+                                <%= p.Price %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ขวา: สินค้าที่เลือก -->
+        <div class="right-section">
+            <h3>สินค้าที่เลือก</h3>
+            <table class="w3-table w3-bordered w3-striped" id="selectedItemsTable">
+                <thead>
+                    <tr>
+                        <th>สินค้า</th>
+                        <th>จำนวน</th>
+                        <th>ราคา</th>
+                        <th>รวม</th>
+                    </tr>
+                </thead>
+                <tbody id="selectedItems"></tbody>
+            </table>
+
+            <h3 id="totalAmount">ยอดรวม: 0 บาท</h3>
+
+            <div class="w3-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+                <label for="sale-date">วันที่:</label>
+                <input type="date" id="sale-date" class="w3-input w3-border" style="width: 150px;">
+
+                <label for="sale-time">เวลา:</label>
+                <input type="time" id="sale-time" class="w3-input w3-border" style="width: 120px;">
+            </div>
+
+
+            <div class="w3-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+                <label for="discountInput">ส่วนลด (บาท):</label>
+                <input type="number" id="discountInput" class="w3-input w3-border" value="0" min="0"
+                    style="width: 100px;">
+            </div>
+
+            <button class="w3-button w3-blue w3-margin-top" type="button" onclick="previewSale()">💰 คิดเงิน</button>
+            <button class="w3-button w3-orange w3-margin-top" type="button" onclick="clearSelectedItems()">🧹 ล้างรายการ</button>
+            <button class="w3-button w3-green w3-margin-top" type="button" onclick="printReceipt()">🖨
+                พิมพ์ใบเสร็จ</button>
+            <button class="w3-button w3-red w3-margin-top" type="button" onclick="printReceipt2()">🖨
+                พิมพ์ใบเสร็จ2</button>
+        </div>
+    </div>
+
+    <div id="previewSaleModal" class="w3-modal">
+        <div class="w3-modal-content w3-animate-zoom" style="width: 30%;">
+            <header class="w3-container w3-teal">
+                <span onclick="document.getElementById('previewSaleModal').style.display='none'"
+                    class="w3-button w3-display-topright">×</span>
+                <h2>ตัวอย่างการขาย</h2>
+            </header>
+            <div class="w3-container">
+                <div id="preview-items"></div>
+                <p id="previewTotalAmount">ยอดรวม: 0 บาท</p>
+            </div>
+            <footer class="w3-container w3-teal">
+                <button onclick="document.getElementById('previewSaleModal').style.display='none'"
+                    class="w3-button w3-red">ปิด</button>
+                <button onclick="confirmSale()" class="w3-button w3-green">ยืนยัน</button>
+        </div>
+    </div>
+
+    <!-- ตัวอย่างใบเสร็จ -->
+    <div id="receipt" class="receipt">
+        <div style="text-align: center; font-size: 10px;">
+            <p>ใบเสร็จรับเงิน</p>
+        </div>
+        <div style="text-align: left; font-size: 10px;">
+            <p>วันที่: <span id="receipt-date"></span></p>
+            <p>ชื่อลูกค้า: <span id="customer-name">หน้าร้าน</span></p>
+        </div>
+        <div id="receipt-items" style="font-size: 10px;"></div>
+
+        <!-- แสดงส่วนลด -->
+        <div style="display: flex; justify-content: space-between; font-size: 10px;">
+            <p>ส่วนลด</p>
+            <p id="discountAmount">฿0.00</p>
+        </div>
+
+        <!-- แสดงยอดรวมหลังส่วนลด -->
+        <div style="display: flex; justify-content: space-between;font-size: 10px;font-weight: bold;">
+            <p>ยอดรวมหลังส่วนลด</p>
+            <p id="totalAfterDiscount">฿0.00</p>
+        </div>
+
+        <!-- แสดงยอดรวม -->
+        <div style="display: flex; justify-content: space-between;font-size: 10px;font-weight: bold;">
+            <p>รวมทั้งสิ้น</p>
+            <p id="totalAmountReceipt">0 บาท</p>
+        </div>
+
+        <div style="text-align: left; font-size: 10px;">
+            <p>ขอบคุณที่ใช้บริการ</p>
+            <p>พนักงาน: Counter 2</p>
+        </div>
+    </div>
+
+
+    <!-- ตัวอย่างใบเสร็จ -->
+    <div id="receipt2" class="receipt">
+        <div style="text-align: center; font-size: 10px;">
+            <p>ใบเสร็จ</p>
+        </div>
+        <div style="text-align: left; font-size: 10px;">
+            <p>ชำระ: <span id="customer-name2">โอน</span></p>
+        </div>
+        <div id="receipt-items2" style="font-size: 10px;"></div>
+
+        <div style="display: flex; justify-content: space-between;font-size: 10px;font-weight: bold;">
+            <p>รวมทั้งสิ้น</p>
+            <p id="totalAmountReceipt2">0 บาท</p>
+        </div>
+        <div style="text-align: center;font-size: 10px;">
+            <span id="receipt-date2"></span>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const table = $('#productTable').DataTable(); 
+
+            $('#categoryFilter').on('change', function () {
+            const selected = $(this).val();
+            table.column(1).search(selected).draw(); // index 2 = คอลัมน์หมวดหมู่
+        });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.clickable-row').forEach(row => {
+                row.addEventListener('click', function () {
+                    const productId = this.dataset.productId;
+                    const productName = this.dataset.productName;
+                    const price = parseFloat(this.dataset.price);
+
+                    addItemToSelected(productId, productName, price);
+                });
+            });
+
+            function addItemToSelected(productId, productName, price) {
+                const selectedItemsTable = document.getElementById('selectedItems');
+
+                if (!selectedItemsTable) return;
+
+                const existingRow = document.querySelector(`#selectedItems tr[data-product-id="${productId}"]`);
+                if (existingRow) {
+                    alert("สินค้านี้ถูกเลือกแล้ว!");
+                    return;
+                }
+
+                const newRow = document.createElement('tr');
+                newRow.dataset.productId = productId;
+                newRow.innerHTML = `
+                    <td>${productName}</td>
+                    <td><input type="number" value="1" min="1" onchange="updateItemTotal(this, '${productId}', ${price})"></td>
+                    <td>${price}</td>
+                    <td id="total_${productId}">${price}</td>
+                `;
+
+                selectedItemsTable.appendChild(newRow);
+                updateTotalAmount();
+            }
+
+            window.updateItemTotal = function (input, productId, price) {
+                const qty = parseInt(input.value, 10);
+                const total = price * qty;
+                document.getElementById(`total_${productId}`).innerText = total;
+                updateTotalAmount();
+            };
+
+            function updateTotalAmount() {
+                const rows = document.querySelectorAll('#selectedItems tr');
+                let totalAmount = 0;
+                rows.forEach(row => {
+                    const totalCell = row.querySelector('td:last-child');
+                    totalAmount += parseFloat(totalCell.innerText) || 0;
+                });
+                document.getElementById('totalAmount').innerText = `ยอดรวม: ${totalAmount} บาท`;
+            }
+        });
+
+        window.onload = function () {
+            const now = new Date();
+
+            const date = now.toISOString().split('T')[0];
+            document.getElementById('sale-date').value = date;
+
+            const time = now.toTimeString().split(' ')[0].slice(0, 5);
+            document.getElementById('sale-time').value = time;
+        };
+
+        function formatDate(inputDate) {
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const [year, month, day] = inputDate.split("-");
+            return `${day}/${months[parseInt(month) - 1]}/${year}`;
+        }
+
+        function printReceipt() {
+            const receiptItems = document.getElementById('receipt-items');
+            const rows = document.querySelectorAll('#selectedItems tr');
+
+            const date = document.getElementById('sale-date').value;
+            //const time = document.getElementById('sale-time').value;
+
+            const formattedDate = formatDate(date);
+            document.getElementById('receipt-date').innerText = `${formattedDate}`;
+
+            let receiptHTML = '';
+            let totalAmount = 0; // ยอดรวมก่อนส่วนลด
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length >= 4) {
+                    const name = cols[0].textContent.trim();
+                    const qtyInput = cols[1].querySelector('input');
+                    const qty = qtyInput ? qtyInput.value.trim() : '1';
+                    const total = parseFloat(cols[3].textContent.trim().replace('฿', '').trim()); // เปลี่ยนเป็นตัวเลข
+                    const price = parseFloat(cols[2].textContent.trim().replace('฿', '').trim()); // เปลี่ยนเป็นตัวเลข
+
+                    totalAmount += total;
+
+                    receiptHTML += `
+            <div style="display: flex; justify-content: space-between;">
+                <span>${name} ${price}x${qty}</span>
+                <span>฿${total.toFixed(2)}</span>
+            </div>`;
+                }
+            });
+
+            // รับส่วนลดจาก input เป็นจำนวนเงิน
+            const discountAmount = parseFloat(document.getElementById('discountInput').value) || 0;
+            const totalAfterDiscount = totalAmount - discountAmount;
+
+            // อัปเดตการแสดงผลในใบเสร็จ
+            receiptItems.innerHTML = receiptHTML;
+
+            // แสดงยอดรวม
+            const totalText = document.getElementById('totalAmount');
+            totalText.innerText = `ยอดรวม: ฿${totalAmount.toFixed(2)}`;
+
+            // แสดงส่วนลด
+            const discountAmountElem = document.getElementById('discountAmount');
+            if (discountAmountElem) {
+                discountAmountElem.innerText = `฿${discountAmount.toFixed(2)}`;
+            }
+
+            // แสดงยอดรวมหลังส่วนลด
+            const totalAfterDiscountElem = document.getElementById('totalAfterDiscount');
+            if (totalAfterDiscountElem) {
+                totalAfterDiscountElem.innerText = `฿${totalAfterDiscount.toFixed(2)}`;
+            }
+
+            // อัปเดตยอดรวมหลังส่วนลดในบิล
+            const totalAmountReceipt = document.getElementById('totalAmountReceipt');
+            if (totalAmountReceipt) {
+                totalAmountReceipt.innerText = `฿${totalAfterDiscount.toFixed(2)}`;
+            }
+
+            // ทำการพิมพ์โดยไม่เปลี่ยนแปลงหน้าจอ
+            const printContent = document.getElementById('receipt').innerHTML;
+
+            // สร้าง iframe ซ่อนสำหรับพิมพ์
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+
+            // เขียนเนื้อหาลงใน iframe
+            const doc = iframe.contentWindow.document;
+            doc.open();
+
+            // เพิ่ม CSS สำหรับเปลี่ยนฟอนต์
+            doc.write(`
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+            
+            body {
+                font-family: 'Kanit', sans-serif; /* ใช้ฟอนต์ Kanit */
+                font-size: 12px;
+            }
+            .receipt {
+                padding: 10px;
+                font-size: 12px;
+            }
+            .receipt span {
+                font-size: 12px;
+            }
+        </style>
+        ${printContent}
+    `);
+            doc.close();
+
+            // เรียกพิมพ์
+            iframe.contentWindow.print();
+
+            // ลบ iframe หลังจากพิมพ์เสร็จ
+            document.body.removeChild(iframe);
+        }
+
+        function printReceipt2() {
+            const receiptItems = document.getElementById('receipt-items2');
+            const rows = document.querySelectorAll('#selectedItems tr');
+
+            const date = document.getElementById('sale-date').value;
+            const time = document.getElementById('sale-time').value;
+
+            const formattedDate = formatDate(date);
+            document.getElementById('receipt-date2').innerText = `${formattedDate} ${time}`;
+
+            let receiptHTML = '';
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length >= 4) {
+                    const name = cols[0].textContent.trim();
+                    const qtyInput = cols[1].querySelector('input');
+                    const qty = qtyInput ? qtyInput.value.trim() : '1';
+                    const total = cols[3].textContent.trim();
+                    const price = cols[2].textContent.trim();
+
+                    receiptHTML += `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>${name}(x${qty})</span>
+                    <span>${total}</span>
+                </div>`;
+                }
+            });
+
+            // อัปเดตรายการใบเสร็จ
+            receiptItems.innerHTML = receiptHTML;
+
+            // อัปเดตราคารวม
+            const totalText = document.getElementById('totalAmount').innerText;
+            document.getElementById('totalAmountReceipt2').innerText = totalText.replace('ยอดรวม: ', '');
+
+            // ทำการพิมพ์โดยไม่เปลี่ยนแปลงหน้าจอ
+            const printContent = document.getElementById('receipt2').innerHTML;
+
+            // สร้าง iframe ซ่อนสำหรับพิมพ์
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+
+            // เขียนเนื้อหาลงใน iframe
+            const doc = iframe.contentWindow.document;
+            doc.open();
+
+            // เพิ่ม CSS สำหรับเปลี่ยนฟอนต์
+            doc.write(`
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+            
+            body {
+                font-family: 'Kanit', sans-serif; /* ใช้ฟอนต์ Kanit */
+                font-size: 12px;
+            }
+            .receipt {
+                padding: 10px;
+                font-size: 12px;
+            }
+            .receipt span {
+                font-size: 12px;
+            }
+        </style>
+        ${printContent}
+    `);
+            doc.close();
+
+            // เรียกพิมพ์
+            iframe.contentWindow.print();
+
+            // ลบ iframe หลังจากพิมพ์เสร็จ
+            document.body.removeChild(iframe);
+        }
+
+        function clearSelectedItems() {
+    document.getElementById('selectedItems').innerHTML = '';
+    document.getElementById('totalAmount').textContent = 'ยอดรวม: 0 บาท';
+    document.getElementById('discountInput').value = 0;
+  }
+
+        function confirmSale() {
+
+            const selectedItems = document.querySelectorAll('#selectedItems tr');
+            const itemsToUpdateStock = [];
+
+            selectedItems.forEach(item => {
+                const productId = item.dataset.productId;
+                const qty = parseInt(item.querySelector('input').value);
+
+                itemsToUpdateStock.push({ productId, qty });
+            });
+
+            updateStock(itemsToUpdateStock);
+
+            document.getElementById('previewSaleModal').style.display = 'none';
+        }
+
+        function updateStock(items) {
+            console.log(items)
+            fetch('/stock/updateStock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(items),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('การตัดสต็อกสำเร็จ');
+                    } else {
+                        alert('การตัดสต็อกล้มเหลว');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาดในการติดต่อกับเซิร์ฟเวอร์');
+                });
+        }
+    </script>
+</body>
+
+</html>

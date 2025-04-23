@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>จัดการสินค้า</title>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+
+<body class="w3-container">
+
+  <h2 class="w3-center">จัดการสินค้า</h2>
+  <button onclick="document.getElementById('addCategoryModal').style.display='block'"
+    class="w3-button w3-blue w3-margin-bottom">
+    + เพิ่มหมวดหมู่
+  </button>
+  <form class="w3-card w3-padding" action="/product/add" method="POST" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+    <input class="w3-input" type="text" name="ProductName" placeholder="ชื่อสินค้า" required style="width: 15%;">
+    <input class="w3-input" name="Description" placeholder="รายละเอียด" style="width: 20%;"></input>
+    <input class="w3-input" type="number" name="Price" placeholder="ราคา" required step="0.01" style="width: 10%;">
+    
+    <input class="w3-input" type="number" name="Stock" placeholder="จำนวนคงเหลือ" required style="width: 10%;">
+    
+    <select class="w3-select" name="CategoryID" required style="width: 15%;">
+      <option value="" disabled selected>เลือกหมวดหมู่</option>
+      <% categories.forEach(c => { %>
+        <option value="<%= c.CategoryID %>"><%= c.CategoryName %></option>
+      <% }) %>
+    </select>
+  
+    <button class="w3-button w3-green" style="width: auto;">เพิ่มสินค้า</button>
+  
+  </form>
+  <div id="addCategoryModal" class="w3-modal">
+    <div class="w3-modal-content w3-animate-top w3-card-4 w3-padding">
+      <span onclick="document.getElementById('addCategoryModal').style.display='none'"
+        class="w3-button w3-display-topright">&times;</span>
+      <h3>เพิ่มหมวดหมู่</h3>
+      <!-- ฟอร์มสำหรับเพิ่มหมวดหมู่ใหม่ -->
+      <form action="/product/category/add" method="POST" style="display: flex; align-items: center;">
+        <input class="w3-input w3-margin-bottom" type="text" name="CategoryName" placeholder="ชื่อหมวดหมู่" required
+          style="flex-grow: 1; margin-right: 10px;">
+        <button class="w3-button w3-green w3-padding" type="submit">บันทึก</button>
+      </form>
+
+      <table class="w3-table w3-striped w3-bordered w3-margin-top">
+        <thead>
+          <tr>
+            <th>หมวดหมู่ทั้งหมด</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% categories.forEach(c=> { %>
+            <tr>
+              <td>
+                <%= c.CategoryName %>
+              </td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <br>
+
+  <form class="w3-card w3-padding" >
+  <table class="w3-table w3-striped w3-bordered w3-margin-top" id="productTable">
+    <thead>
+      <tr>
+        <th>ชื่อสินค้า</th>
+        <th>ราคา</th>
+        <th>คงเหลือ</th>
+        <th>หมวดหมู่</th>
+        <th>จัดการ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% products.forEach(p=> { %>
+        <tr>
+          <form action="/product/update" method="POST">
+            <input type="hidden" name="ProductID" value="<%= p.ProductID %>">
+            <td><input class="w3-input" type="text" name="ProductName" value="<%= p.ProductName %>"></td>
+            <td><input class="w3-input" type="number" step="0.01" name="Price" value="<%= p.Price %>"></td>
+            <td><input class="w3-input" type="number" name="Stock" value="<%= p.Stock %>"></td>
+            <td>
+              <select class="w3-select" name="CategoryID" required>
+                <% categories.forEach(cat=> { %>
+                  <option value="<%= cat.CategoryID %>" <%=cat.CategoryID===p.CategoryID ? 'selected' : '' %>>
+                    <%= cat.CategoryName %>
+                  </option>
+                  <% }) %>
+              </select>
+            </td>
+            <td>
+              <button class="w3-button w3-blue" type="submit">บันทึก</button>
+              <a class="w3-button w3-red" href="/product/delete/<%= p.ProductID %>">ลบ</a>
+            </td>
+          </form>
+        </tr>
+        <% }) %>
+    </tbody>
+  </table>
+</form>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $('#productTable').DataTable();
+  });
+
+  // ปิด Modal ถ้าคลิกนอกกล่อง
+  window.onclick = function (event) {
+    const modal = document.getElementById('addCategoryModal');
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+
+</html>

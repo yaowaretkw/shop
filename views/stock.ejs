@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    /* เพิ่มการจัดการ responsive */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .form-container, .table-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background-color: red;
+    }
+
+    .form-container input[type="text"], .form-container input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .form-container button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-container button:hover {
+      background-color: #45a049;
+    }
+
+    /* สำหรับหน้าจอมือถือ */
+    @media (max-width: 768px) {
+      table th, table td {
+        font-size: 12px;
+      }
+
+      .form-container {
+        padding: 10px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>การจัดการสินค้า</h1>
+
+  <!-- ฟอร์มเพิ่มสินค้า -->
+  <div class="form-container">
+    <h2>รับสินค้าเข้า</h2>
+    <form action="/stock" method="POST">
+      <label for="product_name">ชื่อสินค้า:</label>
+      <input type="text" id="product_name" name="product_name" required>
+
+      <label for="quantity">จำนวน:</label>
+      <input type="number" id="quantity" name="quantity" required>
+
+      <button type="submit">บันทึกข้อมูล</button>
+    </form>
+  </div>
+
+  <!-- ตารางแสดงข้อมูลสินค้า -->
+  <div class="table-container">
+    <h2>รายการสินค้า</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ชื่อสินค้า</th>
+          <th>จำนวน</th>
+          <th>การกระทำ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% stocks.forEach(stock => { %>
+          <tr>
+            <td><%= stock.product_name %></td>
+            <td><%= stock.quantity %></td>
+            <td>
+              <a href="/stock/edit/<%= stock.id %>" class="btn">แก้ไข</a>
+              <a href="/stock/delete/<%= stock.id %>" class="btn btn-danger">ลบ</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>

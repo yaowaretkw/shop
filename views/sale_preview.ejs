@@ -1,0 +1,48 @@
+<!-- views/sale_preview.ejs -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ตัวอย่างการคิดเงิน</title>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <style>
+    body { font-family: 'Kanit', sans-serif; padding: 20px; }
+  </style>
+</head>
+<body>
+  <h2>ตัวอย่างการคิดเงิน</h2>
+
+  <table class="w3-table w3-bordered w3-striped">
+    <thead>
+      <tr>
+        <th>สินค้า</th>
+        <th>จำนวน</th>
+        <th>ราคา</th>
+        <th>รวม</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% previewItems.forEach(item => { %>
+        <tr>
+          <td><%= item.productName %></td>
+          <td><%= item.qty %></td>
+          <td><%= item.price %></td>
+          <td><%= item.total %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <h3>ยอดรวม: <%= totalAmount %> บาท</h3>
+
+  <!-- ปุ่มพิมพ์ -->
+  <button onclick="window.print()">🖨 พิมพ์บิล</button>
+
+  <!-- ปุ่มยืนยันการซื้อ -->
+  <form action="/sale/checkout" method="POST">
+    <input type="hidden" name="items" value="<%= previewItems.map(item => item.productName).join(',') %>">
+    <input type="hidden" name="totalAmount" value="<%= totalAmount %>">
+    <button class="w3-button w3-green">ยืนยันการซื้อ</button>
+  </form>
+</body>
+</html>
